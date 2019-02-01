@@ -2,8 +2,7 @@ const express = require('express');
 const router = express.Router();
 const fs = require('fs');
 const log = require('../public/javascripts/log')
-const News = require('../mongo')
-const User = require('../user')
+const News = require('../public/scheme/news')
 const passport = require('passport');
 
 /* GET home page. */
@@ -15,7 +14,11 @@ router.get('/news', function(req, res, next) {
   log.info('GET request')
 
   News.find({}, (err, docs) => {
-    res.send(docs)
+    if (err) {
+      res.send(err)
+    } else {
+      res.send(docs)
+    }
   })
 });
 
@@ -39,18 +42,6 @@ router.post('/news', function(req, res, next) {
   res.send(`POST request with BODY: ${JSON.stringify(req.body)}`)
 });
 
-router.post('/register', function(req, res, next) {
-  let user = new User({ username: req.body.email, password: req.body.password});
-  user.save()
-  .then(function(doc){
-      console.log("Сохранен пользователь", doc);
-  })
-  .catch(function (err){
-      console.log(err);
-  })
-  res.redirect('/')
-});
-
 router.put('/news/:id', function(req, res, next) {
   log.info('PUT request')
   News.findByIdAndUpdate(req.params.id, req.body)
@@ -66,8 +57,12 @@ router.put('/news/:id', function(req, res, next) {
 
 router.delete('/news/:id', function(req, res, next) {
   log.info('DELETE request')
-  News.findById(req.params.id, (err, news) => {
-    news.remove()
+  News.findByIdAndRemove(req.params.id, (err) => {
+    if(err){
+      res.send(err);
+    } else {
+      res.redirect("/news");
+    }
   })
   res.send(`DELETE document ID: ${req.params.id}`)
 });

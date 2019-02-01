@@ -1,7 +1,7 @@
-var passport = require('passport');
-var LocalStrategy  = require('passport-local').Strategy;
+const passport = require('passport');
+const LocalStrategy  = require('passport-local').Strategy;
 
-const User = require('./user')
+const User = require('./public/scheme/user')
 
 const user = {
   id: 1,
@@ -28,7 +28,7 @@ passport.use(new LocalStrategy({
   usernameField: 'email',
   passwordField: 'password'
 }, function(username, password,done){
-  User.findOne({ username : username},function(err,user){
+  User.findOne({ username },function(err,user){
     return err 
       ? done(err)
       : user
